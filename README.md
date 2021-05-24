@@ -29,7 +29,7 @@ Input parameters for square_surface:
 
     array_size: Length of square array to create. Default set to 1000.
     
-    plot: Plot surface using plotly
+    plot: Plot surface using plotly. Default False.
     
 
 4) Run the model
