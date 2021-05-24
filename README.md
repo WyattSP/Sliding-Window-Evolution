@@ -22,7 +22,7 @@ To run the model:
 
 3) Create your surface
 
-'python 3d_window_descent.py square_surface'
+> python 3d_window_descent.py square_surface
 
 
 Input parameters for square_surface:
@@ -34,7 +34,7 @@ Input parameters for square_surface:
 
 4) Run the model
 
-'python 3d_window_descent.py iter_movement 25 20 10'
+> python 3d_window_descent.py iter_movement 25 20 10
 
 Input parameters for square_surface:
 
