@@ -44,7 +44,7 @@ Input parameters for square_surface:
     
     step_size: The distance of each step. Default set to 1.
     
-    plot_all: Default True. Shows animated plot of individuals in QT window. Recommend set to False if large number of runs chosen. Steps plotted every 0.05s.
+    plot_all: Default False. Shows animated plot of individuals in QT window. Recommend set to False if large number of runs chosen. Steps plotted every 0.05s.
     
     save_plot: Default True. Saves .png animation to working directory of individuals movement on surface.
     
