@@ -129,6 +129,72 @@ def gradient_descent_3d(array,x_start,y_start,steps=10,step_size=1,plot=True):
             break
     return step_vals,step_history
 
+#Main looping function to iterate through runs
+def ind_evol(runs,steps=10,step_size=10):
+    path  = os.getcwd()
+    array = np.load(path + '/surface.npy')
+    step_size = step_size
+    steps = steps
+    runs = runs
+    
+    #Initalize starting point for each run
+    run_vals = [] #Save starting ooints
+    
+    #Initiates plot
+    fig, ax = plt.subplots()
+    CS = ax.contour(np.arange(0,array.shape[0]), np.arange(0,array.shape[1]),array,levels = 25, linewidths = 0.25)
+    ax.clabel(CS, inline=True, fontsize=5)
+    ax.set_title('Adaptive Surface')
+    
+    color=iter(plt.cm.rainbow(np.linspace(0,1,runs))) #set colors
+    
+    #Save all values from steps in array
+    master_arr_steps = np.empty((steps+1,runs),dtype='int,int')
+    master_arr_vals = np.empty((steps+1,runs),dtype='int')
+    
+    for j in range(runs): #5 will be replaced with runs
+        x_start = randrange(0,array.shape[0]-1)
+        y_start = randrange(0,array.shape[1]-1)
+        run_vals.append((x_start,y_start))
+        
+        c = next(color)
+        
+        plt.plot(y_start,x_start,'ro',c=c, marker = "d")
+        
+    master_arr_steps[0] = run_vals
+    master_arr_vals[0] = np.zeros(5)
+        
+    for i in np.arange(1,steps+1): #Iterate number of steps for each run
+            
+        new_vals = []
+        new_step = []
+    
+        for j in master_arr_steps[i-1]: #Iterates each individual run per step
+            
+            prev_x = j[0]
+            prev_y = j[1]
+            center = (prev_x,prev_y)
+            step = sliding_window(array,step_size,center)
+            vals = array[step[0],step[1]]
+            # Update current point to now be the next point after stepping
+            current_x, current_y = (step[0],step[1])
+            #Record step
+            new_step.append(step) #local
+            new_vals.append(vals) #local
+            
+            past_x = prev_x
+            past_y = prev_y
+            
+            next_x = current_x
+            next_y = current_y
+            
+            plt.plot([past_y,next_y],[past_x,next_x],'k-', c='black')
+            plt.plot(next_y,next_x,'ro', c=c, marker = "o")
+            plt.pause(0.05)
+            
+        master_arr_steps[i] = new_step #global
+        master_arr_vals[i] = new_vals #global
+
 class Core_Functions(object):
     
     #Create square 3D surface
