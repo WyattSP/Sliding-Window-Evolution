@@ -34,7 +34,7 @@ Input parameters for square_surface:
 
 4) Run the model
 
-> python 3d_window_descent.py iter_movement 25 20 10
+> python 3d_window_descent.py iter_movement 10 20 10 False True
 
 Input parameters for square_surface:
 
@@ -44,7 +44,9 @@ Input parameters for square_surface:
     
     step_size: The distance of each step. Default set to 1.
     
-    plot_all: Default True. Unstable if set to False
+    plot_all: Default True. Shows animated plot of individuals in QT window. Recommend set to False if large number of runs chosen. Steps plotted every 0.05s.
+    
+    save_plot: Default True. Saves .png animation to working directory of individuals movement on surface.
     
 
 Outputs are saved into your working directory as individual files.

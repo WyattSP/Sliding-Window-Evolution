@@ -133,6 +133,22 @@ class Core_Functions(object):
     
     #Create square 3D surface
     def square_surface(self, array_size = 1000, plot = False):
+        '''
+        Creates adaptive surface
+
+        Parameters
+        ----------
+        array_size : TYPE, int
+            DESCRIPTION. The default is 1000. int value specifies square dimensions of surface. Must be single value.
+        plot : TYPE, boolean
+            DESCRIPTION. The default is False. Plots surface.
+
+        Returns
+        -------
+        new_surface : TYPE, array
+            DESCRIPTION. Input array for iter_movement function
+
+        '''
         N = array_size
         # the x and y coordinate of the center point
         center_arr = (N - 1) / 2
@@ -160,7 +176,29 @@ class Core_Functions(object):
         return new_surface
     
     #Iterate through many runs
-    def iter_movement(self, runs, steps=10,step_size=1,plot_all=True):
+    def iter_movement(self, runs, steps=10,step_size=1,plot_all=False,save_plot=True):
+        '''
+        Models a specified number of individuals to move towards the lowest point on the surface
+    
+        Parameters
+        ----------
+        runs : TYPE int
+            DESCRIPTION. Number of individuals to evolve on surface
+        steps : TYPE, int
+            DESCRIPTION. The default is 10. Number of steps each individual will take per run.
+        step_size : TYPE, int
+            DESCRIPTION. The default is 1. Vector length between each step.
+        plot_all : TYPE, boolean
+            DESCRIPTION. The default is False. Animated plot of individuals on surface. Set to False for large number of runs.
+        save_plot : TYPE, boolean
+            DESCRIPTION. The default is True. Save model to .png file in working directory
+
+        Returns
+        -------
+        TYPE .png
+            DESCRIPTION. Returns .png file of model
+
+        '''
         # Initial point to start gradient descent at
         path  = os.getcwd()
         array = np.load(path + '/surface.npy')
@@ -169,11 +207,10 @@ class Core_Functions(object):
         runs = runs
         color=iter(plt.cm.rainbow(np.linspace(0,1,runs)))
         #Initiates plot
-        if plot_all:
-                fig, ax = plt.subplots()
-                CS = ax.contour(np.arange(0,array.shape[0]), np.arange(0,array.shape[1]),array,levels = 25, linewidths = 0.25)
-                ax.clabel(CS, inline=True, fontsize=5)
-                ax.set_title('Adaptive Surface')
+        fig, ax = plt.subplots()
+        CS = ax.contour(np.arange(0,array.shape[0]), np.arange(0,array.shape[1]),array,levels = 25, linewidths = 0.25)
+        ax.clabel(CS, inline=True, fontsize=5)
+        ax.set_title('Adaptive Surface')
         #Iterates through runs
         for k in range(runs):
                 c = next(color)
@@ -192,7 +229,11 @@ class Core_Functions(object):
                     next_y = y_steps[i]
                     plt.plot([past_y,next_y],[past_x,next_x],'k-', c='black')
                     plt.plot(next_y,next_x,'ro', c=c, marker = "o")
-        plt.savefig('evolution_surface.png')
+                    if plot_all:
+                        plt.pause(0.005)
+        if save_plot:
+            plt.savefig('evolution_surface.png')
+        plt.show()
         return print('All finished!')
                 
 if __name__ == '__main__':
