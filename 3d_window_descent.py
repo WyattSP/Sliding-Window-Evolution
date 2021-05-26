@@ -134,14 +134,12 @@ def gradient_descent_3d(array,x_start,y_start,steps=10,step_size=1,plot=True):
 class Core_Functions(object):
     
     #Create square 3D surface
-    def square_surface(self, name, array_size = 1000, plot = False):
+    def square_surface(self, array_size = 1000, plot = False):
         '''
         Creates adaptive surface
 
         Parameters
         ----------
-        name: TYPE, str
-            Name of saved surface, must be a string.
         array_size : TYPE, int
             DESCRIPTION. The default is 1000. int value specifies square dimensions of surface. Must be single value.
         plot : TYPE, boolean
@@ -153,7 +151,6 @@ class Core_Functions(object):
             DESCRIPTION. Input array for iter_movement function
 
         '''
-        name = name
         N = array_size
         # the x and y coordinate of the center point
         center_arr = (N - 1) / 2
@@ -177,8 +174,8 @@ class Core_Functions(object):
             topo.update_traces(contours_z=dict(show=True, usecolormap=True,
                                   highlightcolor="limegreen", project_z=True))
             plotly.offline.plot(topo)
-        save_name = name + '.npy'
-        np.save(save_name,new_surface)
+            
+        np.save('surface.npy',new_surface)
         return new_surface
     
     #Iterate through many runs
