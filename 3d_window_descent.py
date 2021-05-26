@@ -12,6 +12,7 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly
 import os
+import time
 
 #Boundary array function
 def min_dims(row_val,col_val,w_size,arr):
@@ -129,81 +130,18 @@ def gradient_descent_3d(array,x_start,y_start,steps=10,step_size=1,plot=True):
             break
     return step_vals,step_history
 
-#Main looping function to iterate through runs
-def ind_evol(runs,steps=10,step_size=10):
-    path  = os.getcwd()
-    array = np.load(path + '/surface.npy')
-    step_size = step_size
-    steps = steps
-    runs = runs
-    
-    #Initalize starting point for each run
-    run_vals = [] #Save starting ooints
-    
-    #Initiates plot
-    fig, ax = plt.subplots()
-    CS = ax.contour(np.arange(0,array.shape[0]), np.arange(0,array.shape[1]),array,levels = 25, linewidths = 0.25)
-    ax.clabel(CS, inline=True, fontsize=5)
-    ax.set_title('Adaptive Surface')
-    
-    color=iter(plt.cm.rainbow(np.linspace(0,1,runs))) #set colors
-    
-    #Save all values from steps in array
-    master_arr_steps = np.empty((steps+1,runs),dtype='int,int')
-    master_arr_vals = np.empty((steps+1,runs),dtype='int')
-    
-    for j in range(runs): #5 will be replaced with runs
-        x_start = randrange(0,array.shape[0]-1)
-        y_start = randrange(0,array.shape[1]-1)
-        run_vals.append((x_start,y_start))
-        
-        c = next(color)
-        
-        plt.plot(y_start,x_start,'ro',c=c, marker = "d")
-        
-    master_arr_steps[0] = run_vals
-    master_arr_vals[0] = np.zeros(5)
-        
-    for i in np.arange(1,steps+1): #Iterate number of steps for each run
-            
-        new_vals = []
-        new_step = []
-    
-        for j in master_arr_steps[i-1]: #Iterates each individual run per step
-            
-            prev_x = j[0]
-            prev_y = j[1]
-            center = (prev_x,prev_y)
-            step = sliding_window(array,step_size,center)
-            vals = array[step[0],step[1]]
-            # Update current point to now be the next point after stepping
-            current_x, current_y = (step[0],step[1])
-            #Record step
-            new_step.append(step) #local
-            new_vals.append(vals) #local
-            
-            past_x = prev_x
-            past_y = prev_y
-            
-            next_x = current_x
-            next_y = current_y
-            
-            plt.plot([past_y,next_y],[past_x,next_x],'k-', c='black')
-            plt.plot(next_y,next_x,'ro', c=c, marker = "o")
-            plt.pause(0.05)
-            
-        master_arr_steps[i] = new_step #global
-        master_arr_vals[i] = new_vals #global
 
 class Core_Functions(object):
     
     #Create square 3D surface
-    def square_surface(self, array_size = 1000, plot = False):
+    def square_surface(self, name, array_size = 1000, plot = False):
         '''
         Creates adaptive surface
 
         Parameters
         ----------
+        name: TYPE, str
+            Name of saved surface, must be a string.
         array_size : TYPE, int
             DESCRIPTION. The default is 1000. int value specifies square dimensions of surface. Must be single value.
         plot : TYPE, boolean
@@ -215,6 +153,7 @@ class Core_Functions(object):
             DESCRIPTION. Input array for iter_movement function
 
         '''
+        name = name
         N = array_size
         # the x and y coordinate of the center point
         center_arr = (N - 1) / 2
@@ -238,7 +177,8 @@ class Core_Functions(object):
             topo.update_traces(contours_z=dict(show=True, usecolormap=True,
                                   highlightcolor="limegreen", project_z=True))
             plotly.offline.plot(topo)
-        np.save('surface.npy',new_surface)
+        save_name = name + '.npy'
+        np.save(save_name,new_surface)
         return new_surface
     
     #Iterate through many runs
@@ -301,6 +241,121 @@ class Core_Functions(object):
             plt.savefig('evolution_surface.png')
         plt.show()
         return print('All finished!')
+    
+    
+    #Main looping function to iterate through runs
+    def ind_evol(self, name, runs, steps=10, step_size=10, plot_model = False, plot_rate = 0.05):
+        '''
+        Evolution towards optima calculated at each step
+    
+        Parameters
+        ----------
+        name : TYPE, str
+            Name of saved surface, must be a string.
+        runs : TYPE, int
+            Select number of individuals to include in analysis.
+        steps : TYPE, int
+            The default is 10. Number of steps individual will take.
+        step_size : TYPE, int
+            The default is 10. Size of each step.
+        plot_model: TYPE, Boolean
+            Plots model runs
+        plot_rate: TYPE, numeric
+            Rate to update plot for each run. For large run values suggest very small vales. Default = 0.05 seconds.
+    
+        Returns
+        -------
+        Steps Taken: TYPE Array
+            Array of steps taken by each individual. m X n array correspounds to steps (row) X runs (column)
+        Step Values: TYPE Array
+            Array of values for each step towards the optima. Demensions are the same as Steps Taken array.
+    
+        '''
+        start_time = time.time()
+        
+        name = name
+        path  = os.getcwd()
+        array = np.load(path + '/surface.npy')
+        step_size = step_size
+        steps = steps
+        runs = runs
+        plot_rate = plot_rate
+        
+        if runs > 10 and plot_model:
+            print("Warning: Plotting large runs will take a long time")
+        
+        #Initalize starting point for each run
+        run_vals = [] #Save starting ooints
+        
+        #Initiates plot
+        if plot_model:
+            fig, ax = plt.subplots()
+            CS = ax.contour(np.arange(0,array.shape[0]), np.arange(0,array.shape[1]),array,levels = 25, linewidths = 0.25)
+            ax.clabel(CS, inline=True, fontsize=5)
+            ax.set_title('Adaptive Surface')
+            
+            color=iter(plt.cm.rainbow(np.linspace(0,1,runs))) #set colors
+        
+        #Save all values from steps in array
+        master_arr_steps = np.empty((steps+1,runs),dtype='int,int')
+        master_arr_vals = np.empty((steps+1,runs),dtype='int')
+        color_list = []
+        for j in range(runs): #5 will be replaced with runs
+            x_start = randrange(0,array.shape[0]-1)
+            y_start = randrange(0,array.shape[1]-1)
+            run_vals.append((x_start,y_start))
+            
+            if plot_model:
+                c = next(color)
+                color_list.append(c)
+                
+                plt.plot(y_start,x_start,'ro',c=c, marker = "d")
+            
+        master_arr_steps[0] = run_vals
+        master_arr_vals[0] = np.zeros(runs)
+            
+        for i in np.arange(1,steps+1): #Iterate number of steps for each run
+                
+            new_vals = []
+            new_step = []
+        
+            for idx2, j in enumerate(master_arr_steps[i-1]): #Iterates each individual run per step
+                
+                prev_x = j[0]
+                prev_y = j[1]
+                center = (prev_x,prev_y)
+                step = sliding_window(array,step_size,center)
+                vals = array[step[0],step[1]]
+                # Update current point to now be the next point after stepping
+                current_x, current_y = (step[0],step[1])
+                #Record step
+                new_step.append(step) #local
+                new_vals.append(vals) #local
+                
+                past_x = prev_x
+                past_y = prev_y
+                
+                next_x = current_x
+                next_y = current_y
+                
+                if plot_model:
+                    plt.plot([past_y,next_y],[past_x,next_x],'k-', c='black')
+                    plt.plot(next_y,next_x,'ro', c=color_list[idx2], marker = "o")
+                    plt.pause(plot_rate)
+                
+            master_arr_steps[i] = new_step #global
+            master_arr_vals[i] = new_vals #global
+        
+        if plot_model:
+            plt.savefig('Ind_evol.png')
+            
+        save_name_steps = name + '_steps.npy'
+        save_name_values = name + '_values.npy'
+        np.save(save_name_steps,master_arr_steps)
+        np.save(save_name_values,master_arr_vals)
+        print("--- Model run time %s seconds ---" % (time.time() - start_time))
+            
+        return master_arr_steps,master_arr_vals
                 
 if __name__ == '__main__':
     core_functions = Core_Functions()
